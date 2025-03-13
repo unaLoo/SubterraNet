@@ -34,7 +34,6 @@ export default class TubeLayerGroup {
         // if map setted , initialize
         if (this.map && this.gl) {
             subLayer.initialize(this.map, this.gl, this)
-            this.sortByGeoType(this.subLayers)
             this.map.triggerRepaint()
         } else {
             console.log(`add sublayer ${subLayer.id} info: map or gl not ready`)
@@ -150,15 +149,6 @@ export default class TubeLayerGroup {
     onRemove() {
 
         console.log(this.id + " removed! (^_^)");
-
-    }
-
-    sortByGeoType(subLayerArray) {
-
-        const order = { "point": 1, "line": 2, "polygon": 3 };
-        return subLayerArray.sort((a, b) => {
-            return order[a.geotype] - order[b.geotype];
-        });
 
     }
 
