@@ -1,0 +1,33 @@
+html,
+body,
+div#app {
+  margin: 0;
+  padding: 0;
+}
+
+div#app {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.fullscreen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+div#map {
+  z-index: 1;
+  background-color: transparent;
+}
+
+canvas#deck {
+  z-index: 0;
+  user-select: none;
+  pointer-events: none;
+  background-color: transparent;
+}
