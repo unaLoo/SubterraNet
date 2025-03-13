@@ -192,6 +192,7 @@ export default class OutfallLayer {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_modelMatrix'), false, u_modelMatrix)
         gl.uniform1f(gl.getUniformLocation(program, 'scaleRate'), scaleRate)
         gl.uniform1f(gl.getUniformLocation(program, 'timeStep'), this.currTime / this.deltaTime * 1.0)
+        gl.uniform1f(gl.getUniformLocation(program, 'u_max_depth'), 5.0)
 
         // gl.drawElements(gl.TRIANGLES, this.tubeIdxNum, this.tubeIdxType, 0)
         gl.drawElementsInstanced(gl.TRIANGLES, this.idxNum, this.idxType, 0, this.instanceNum)

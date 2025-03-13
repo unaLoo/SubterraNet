@@ -38,7 +38,8 @@ export default class ConduitLayer {
             threshold: 0.5,
             density: 30,
             flowSpeed: 0.5,
-            colorDarkness: 0.5
+            colorDarkness: 0.5,
+            maxTubeVelocity: 5.0
         }
 
         // data
@@ -204,7 +205,7 @@ export default class ConduitLayer {
         gl.uniform1f(gl.getUniformLocation(program, 'u_density'), this.controller.density)
         gl.uniform1f(gl.getUniformLocation(program, 'u_flow_speed'), this.controller.flowSpeed)
         gl.uniform1f(gl.getUniformLocation(program, 'u_color_darkness'), this.controller.colorDarkness)
-        gl.uniform1f(gl.getUniformLocation(program, 'u_max_flow'), 3.0)
+        gl.uniform1f(gl.getUniformLocation(program, 'u_max_velocity'), this.controller.maxTubeVelocity)
 
         gl.activeTexture(gl.TEXTURE0)
         gl.bindTexture(gl.TEXTURE_2D, this.rampTexture)
@@ -268,6 +269,7 @@ export default class ConduitLayer {
         this.gui.add(this.controller, "threshold", 0, 1)
         this.gui.add(this.controller, "density", 1, 40)
         this.gui.add(this.controller, "flowSpeed", 0.01, 3)
+        this.gui.add(this.controller, "maxTubeVelocity", 3.0, 10.0)
         // this.gui.domElement.style.zIndex = '9999'
         this.gui.domElement.parentElement.style.zIndex = '999'
         this.gui.domElement.parentElement.style.right = '100px'

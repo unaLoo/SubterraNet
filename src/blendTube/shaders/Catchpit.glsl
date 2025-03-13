@@ -50,6 +50,7 @@ in vec3 v_normal;
 in vec2 v_uv;
 in float v_depth;
 
+uniform float u_max_depth;
 
 out vec4 fragColor;
 
@@ -65,7 +66,7 @@ void main() {
 
     float depth = abs(v_normal.z) > 0.99 ? v_normal.z * 0.5 + 0.5 : v_uv.y;
 
-    float segmentDepth = step(depth, v_depth / 5.0);
+    float segmentDepth = step(depth, v_depth / u_max_depth);
     vec3 finalColor = mix(baseColor * 0.2, baseColor, segmentDepth);
     fragColor = vec4(diffuse + finalColor, 1.0);
 }

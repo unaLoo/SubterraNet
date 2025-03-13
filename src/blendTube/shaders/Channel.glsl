@@ -56,7 +56,7 @@ uniform float u_time;
 uniform float u_density;
 uniform float u_threshold;
 uniform float u_flow_speed;
-uniform float u_max_flow;
+uniform float u_max_velocity;
 uniform float u_color_darkness;
 
 out vec4 fragColor;
@@ -76,7 +76,7 @@ void main() {
     float velocity = mix(v_curr_velocity, v_next_velocity, fract(u_time));
     float currentLength = v_length * v_uv.x;
     float segmentValue = step(fract(currentLength / u_density - u_time * u_flow_speed * v_curr_velocity), u_threshold);
-    vec2 rampUV = vec2(clamp(abs(velocity) / u_max_flow, 0.0, 1.0), 0.5);
+    vec2 rampUV = vec2(clamp(abs(velocity) / u_max_velocity, 0.0, 1.0), 0.5);
     vec3 rampColor = texture(u_ramp_texture, rampUV).rgb;
     vec3 finalColor = mix(rampColor * u_color_darkness, rampColor, segmentValue);
     fragColor = vec4(finalColor + diffuse, 1.0);
