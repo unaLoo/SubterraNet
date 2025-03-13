@@ -30,7 +30,7 @@ export default class TubeLayerGroup {
             return
         }
         this.subLayers.push(subLayer)
-
+        this.subLayers.sort((a, b) => a.order - b.order)
         // if map setted , initialize
         if (this.map && this.gl) {
             subLayer.initialize(this.map, this.gl, this)
@@ -84,10 +84,12 @@ export default class TubeLayerGroup {
         this.map = map
         const gl = this.gl = mapbox_gl
 
+        GLib.enableAllExtensions(gl)
+
         // gen a fbo
         this.layerTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE)
-        this.depthRBO = GLib.createRenderBufferD24S8(gl, gl.canvas.width, gl.canvas.height)
-        this.layerFbo = GLib.createFrameBuffer(gl, [this.layerTexture], null, this.depthRBO)
+        this.depthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.DEPTH_COMPONENT24, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT)
+        this.layerFbo = GLib.createFrameBuffer(gl, [this.layerTexture], this.depthTexture, null)
 
         this.showProgram = GLib.createShaderFromCode(gl, showCode)
         this.textureLocation = gl.getUniformLocation(this.showProgram, "debugTexture")
@@ -116,10 +118,17 @@ export default class TubeLayerGroup {
         if (!this.maskTexture) return
 
         //////////////RENDER
-        // sorted again?
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerFbo)
+        // gl.depthMask(true)
+        // gl.enable(gl.DEPTH_TEST)
+        // gl.depthFunc(gl.LEQUAL)
+        // gl.clearDepth(1.0)
+        // gl.clearColor(0.0, 0.0, 0.0, 0.0)
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+        gl.disable(gl.DEPTH_TEST)
         gl.clearColor(0.0, 0.0, 0.0, 0.0)
-        gl.clear(gl.COLOR_BUFFER_BIT)
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
         this.subLayers.forEach(subLayer => {
@@ -133,12 +142,12 @@ export default class TubeLayerGroup {
         gl.useProgram(this.showProgram)
         gl.activeTexture(gl.TEXTURE0)
         gl.bindTexture(gl.TEXTURE_2D, this.layerTexture)
+        // gl.bindTexture(gl.TEXTURE_2D, this.depthTexture)
         gl.uniform1i(this.textureLocation, 0)
 
         gl.activeTexture(gl.TEXTURE1)
         gl.bindTexture(gl.TEXTURE_2D, this.maskTexture)
         gl.uniform1i(this.maskLocation, 1)
-
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 

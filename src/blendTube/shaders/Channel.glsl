@@ -23,6 +23,7 @@ out vec2 v_uv;
 out float v_length;
 out float v_curr_velocity;
 out float v_next_velocity;
+out float vz;
 
 void main() {
 
@@ -38,6 +39,8 @@ void main() {
 
     v_curr_velocity = a_curr_velocity;
     v_next_velocity = a_next_velocity;
+    vz = positionInClip.z / positionInClip.w;
+
 }
 
 #endif
@@ -50,6 +53,7 @@ in vec2 v_uv;
 in float v_length;
 in float v_curr_velocity;
 in float v_next_velocity;
+in float vz;
 
 uniform sampler2D u_ramp_texture;
 uniform float u_time;

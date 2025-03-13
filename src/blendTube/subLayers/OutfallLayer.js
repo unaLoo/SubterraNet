@@ -11,6 +11,7 @@ export default class OutfallLayer {
      * @param {Object} options.point_geojson geojson point data
      * @param {number} options.minZoom
      * @param {number} options.maxZoom
+     * @param {number} options.order
      */
     constructor(id, options) {
         // base
@@ -26,6 +27,7 @@ export default class OutfallLayer {
         // state
         this.initialized = false
         this.visible = true
+        this.order = options.order || 999
 
         // time
         this.currTime = 0
@@ -60,7 +62,6 @@ export default class OutfallLayer {
         ////////////// data and buffer
         const cylinderData = generateOneCylinder(0.01 * 2, 0.2 + 0.01)
         const { vertices } = generateOneCylinder(0.01 * 220, 0.2 + 0.01)//exaggerated vertex for scale
-        // const { vertices } = generateOneCylinder(0.01 * 2000, 0.2 + 0.01)//exaggerated vertex for scale
 
         const pointNum = this.geojson.features.length
         let vertexCount = 0
@@ -72,12 +73,11 @@ export default class OutfallLayer {
         for (let feature of this.geojson.features) {
             for (let i = 1; i <= this.numTimes; i++) {
                 const currWH = Number(feature.properties["node_data_WH_" + i * 5])
-            
+
                 waterHeightArrayBuffers[i - 1].fill(currWH, vertexCount, vertexCount + 1) // currWH
             }
             vertexCount += 1
         }
-        console.log(waterHeightArrayBuffers)
 
         const points = generatePoints(this.geojson, this.layerGroup.origin)
 
@@ -183,9 +183,10 @@ export default class OutfallLayer {
         }
 
         //////////////RENDER
-        // gl.enable(gl.DEPTH_TEST)
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerGroup.layerFbo)
-
+        // gl.depthMask(true)
+        // gl.enable(gl.DEPTH_TEST)
+        // gl.depthFunc(gl.LESS)
         gl.useProgram(program)
         gl.bindVertexArray(this.pitVao)
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, Xmatrix)

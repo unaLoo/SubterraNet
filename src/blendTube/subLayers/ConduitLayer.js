@@ -10,6 +10,7 @@ export default class ConduitLayer {
      * @param {Object} options.line_geojson geojson line data
      * @param {number} options.minZoom
      * @param {number} options.maxZoom
+     * @param {number} options.order
      * @param {Function} options.onInitialized
      */
     constructor(id, options) {
@@ -27,6 +28,7 @@ export default class ConduitLayer {
         this.minZoom = options.minZoom || 10
         this.maxZoom = options.maxZoom || 20
         this.onInitialized = options.onInitialized
+        this.order = options.order || 999
 
         // state
         this.initialized = false
@@ -188,10 +190,11 @@ export default class ConduitLayer {
         }
 
         //////////////RENDER
-        // gl.enable(gl.DEPTH_TEST)
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerGroup.layerFbo)
-
+        // gl.depthMask(true)
+        // gl.enable(gl.DEPTH_TEST)
+        // gl.depthFunc(gl.LESS)
         gl.useProgram(program)
         gl.bindVertexArray(this.tubeVao)
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, XMatrix)

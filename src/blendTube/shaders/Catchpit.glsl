@@ -22,6 +22,7 @@ uniform float timeStep;
 out vec3 v_normal;
 out vec2 v_uv;
 out float v_depth;
+// out float vz;
 
 void main() {
     // vec4 pos = mix(a_BIG_pos, a_pos, pow(clamp(scaleRate + 0.1, 0.0, 1.0), 0.1));
@@ -39,6 +40,7 @@ void main() {
     v_normal = normalMat * a_normal;
     v_uv = a_uv;
     v_depth = mix(a_curr_wh, a_next_wh, fract(timeStep));
+    // vz = positionInClip.z / positionInClip.w;
 }
 
 #endif
@@ -49,7 +51,7 @@ precision highp float;
 in vec3 v_normal;
 in vec2 v_uv;
 in float v_depth;
-
+// in float vz;
 
 out vec4 fragColor;
 
@@ -68,6 +70,8 @@ void main() {
     float segmentDepth = step(depth, v_depth / 5.0);
     vec3 finalColor = mix(baseColor * 0.2, baseColor, segmentDepth);
     fragColor = vec4(diffuse + finalColor, 1.0);
+
+    // fragColor = vec4(vec3(vz * 0.5 + 0.5), 1.0);
 }
 
 #endif

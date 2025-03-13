@@ -11,6 +11,7 @@ export default class JunctionLayer {
      * @param {Object} options.point_geojson geojson point data
      * @param {number} options.minZoom
      * @param {number} options.maxZoom
+     * @param {number} options.order
      */
     constructor(id, options) {
         // base
@@ -22,6 +23,7 @@ export default class JunctionLayer {
         this.geojson = options.point_geojson
         this.minZoom = options.minZoom || 10
         this.maxZoom = options.maxZoom || 20
+        this.order = options.order || 999
 
         // state
         this.initialized = false
@@ -122,10 +124,11 @@ export default class JunctionLayer {
         const scaleRate = (map.transform.zoom - this.minZoom) / (this.maxZoom - this.minZoom)
 
         //////////////RENDER
-        // gl.enable(gl.DEPTH_TEST)
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerGroup.layerFbo)
-
+        // gl.depthMask(true)
+        // gl.enable(gl.DEPTH_TEST)
+        // gl.depthFunc(gl.LESS)
         gl.useProgram(program)
         gl.bindVertexArray(this.pitVao)
 

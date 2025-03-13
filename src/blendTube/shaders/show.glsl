@@ -33,6 +33,10 @@ void main() {
         vec4 M = texture(debugTexture, texcoords);
         float alpha = smoothstep(0.0, 1.0, M.a + 0.5);
         fragColor = vec4(M.rgb, alpha);
+
+        // float depth = texture(debugTexture, texcoords).r;
+        
+        // fragColor = vec4(vec3(smoothstep(0.95,1.0,depth)),1.0);
     } else {
         fragColor = vec4(0.0);
     }

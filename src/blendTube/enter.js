@@ -37,16 +37,19 @@ export const start = () => {
         );
         const conduitLayer = new ConduitLayer("conduit_layer", {
             line_geojson: conduitJson,
+            order: 1,
             onInitialized: () => {
                 // 2nd
                 const junctionLayer = new OutfallLayer("junction_layer", {
                     point_geojson: junctionJson,
+                    order: 2
                 });
                 tubeLayerGroup.addSubLayer(junctionLayer);
 
                 // 3rd
                 const outfallLayer = new OutfallLayer("outfall_layer", {
                     point_geojson: outfallJson,
+                    order: 3,
                 });
                 tubeLayerGroup.addSubLayer(outfallLayer);
 
