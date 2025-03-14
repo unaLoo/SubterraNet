@@ -22,24 +22,30 @@ precision highp usampler2D;
 in vec2 texcoords;
 
 uniform sampler2D debugTexture;
-uniform sampler2D maskTexture;
+// uniform sampler2D maskTexture;
 
 out vec4 fragColor;
 
 void main() {
 
-    float flag = texture(maskTexture, texcoords).x;
-    if(flag == 1.0) {
-        vec4 M = texture(debugTexture, texcoords);
-        float alpha = smoothstep(0.0, 1.0, M.a + 0.5);
-        fragColor = vec4(M.rgb, alpha);
+    // float flag = texture(maskTexture, texcoords).x;
+    // if(flag == 1.0) {
+    //     vec4 M = texture(debugTexture, texcoords);
+    //     float alpha = smoothstep(0.0, 1.0, M.a + 0.5);
+    //     fragColor = vec4(M.rgb, alpha);
 
-        // float depth = texture(debugTexture, texcoords).r;
-        
-        // fragColor = vec4(vec3(smoothstep(0.95,1.0,depth)),1.0);
-    } else {
-        fragColor = vec4(0.0);
-    }
+    //     // float depth = texture(debugTexture, texcoords).r;
+
+    //     // fragColor = vec4(vec3(smoothstep(0.95,1.0,depth)),1.0);
+    // } else {
+    //     fragColor = vec4(0.0);
+    // }
+
+    vec4 M = texture(debugTexture, texcoords);
+    float alpha = smoothstep(0.0, 1.0, M.a + 0.5);
+    // fragColor = vec4(M.rgb, 1.0);
+    fragColor = vec4(vec3(M.r), 1.0);
+
 }   
 
 #endif

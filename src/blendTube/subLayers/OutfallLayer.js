@@ -184,9 +184,10 @@ export default class OutfallLayer {
 
         //////////////RENDER
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerGroup.layerFbo)
-        // gl.depthMask(true)
-        // gl.enable(gl.DEPTH_TEST)
-        // gl.depthFunc(gl.LESS)
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.layerGroup.depthBuffer)
+        gl.enable(gl.DEPTH_TEST)
+        gl.depthMask(true)
         gl.useProgram(program)
         gl.bindVertexArray(this.pitVao)
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, Xmatrix)
@@ -196,17 +197,14 @@ export default class OutfallLayer {
 
         // gl.drawElements(gl.TRIANGLES, this.tubeIdxNum, this.tubeIdxType, 0)
         gl.drawElementsInstanced(gl.TRIANGLES, this.idxNum, this.idxType, 0, this.instanceNum)
-        gl.bindVertexArray(null)
 
+        gl.bindVertexArray(null)
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, null)
         gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     }
 
     remove() {
-
-
-
         console.log(this.id + " removed! (^_^)");
-
     }
 
 }

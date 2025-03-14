@@ -28,7 +28,7 @@ export function enableAllExtensions(gl) {
     const extensions = gl.getSupportedExtensions()
     extensions.forEach(ext => {
         gl.getExtension(ext)
-        console.log('Enabled extensions: ', ext)
+        // console.log('Enabled extensions: ', ext)
     })
 }
 
@@ -97,7 +97,7 @@ export function createShaderFromCode(gl, code) {
  * @param { WebGLRenderbuffer } [ renderBuffer ] 
  * @returns { WebGLFramebuffer }
  */
-export function createFrameBuffer(gl, textures, depthTexture, renderBuffer) {
+export function createFrameBuffer(gl, textures, depthTexture, depthRenderBuffer) {
 
     const frameBuffer = gl.createFramebuffer()
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
@@ -110,9 +110,16 @@ export function createFrameBuffer(gl, textures, depthTexture, renderBuffer) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0)
     }
 
-    if (renderBuffer) {
+    if (depthRenderBuffer) {
 
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, renderBuffer)
+        // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, renderBuffer)
+
+        gl.framebufferRenderbuffer(
+            gl.FRAMEBUFFER,
+            gl.DEPTH_ATTACHMENT,
+            gl.RENDERBUFFER,
+            depthRenderBuffer
+        )
     }
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
@@ -293,9 +300,15 @@ export function createRenderBuffer(gl, width, height) {
 
     const renderBuffer = gl.createRenderbuffer()
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer)
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, bufferWidth, bufferHeight)
-    gl.stencilFunc(gl.ALWAYS, 1, 0xFF)
-    gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE)
+    // gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, bufferWidth, bufferHeight)
+    // gl.stencilFunc(gl.ALWAYS, 1, 0xFF)
+    // gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE)
+    gl.renderbufferStorage(
+        gl.RENDERBUFFER,
+        gl.DEPTH_COMPONENT16,
+        bufferWidth,
+        bufferHeight
+    );
     gl.bindRenderbuffer(gl.RENDERBUFFER, null)
 
     return renderBuffer

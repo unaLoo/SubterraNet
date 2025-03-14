@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 
 const MY_WORLD_SIZE = 1024000
+// const MY_WORLD_SIZE = 102400
 
 export function updateMyWolrdCamera(transform, mercatorWorldSize, minElevation = 0.0) {
 
@@ -73,7 +74,7 @@ export function calcMatrix(mapbox_transform, modelOriginInMyWorld) {
     ///////////////////////////////////////////////////////////////////
     /////////////////////////// Three matrix//////////////////////////
     ///////////////////////////////////////////////////////////////////
-    const xCamera = updateMyWolrdCamera(mapbox_transform.clone(), MY_WORLD_SIZE, -300.0)
+    const xCamera = updateMyWolrdCamera(mapbox_transform.clone(), MY_WORLD_SIZE, 0.0)
     const flip = new THREE.Matrix4().set(
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,

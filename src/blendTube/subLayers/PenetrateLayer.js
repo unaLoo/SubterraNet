@@ -147,7 +147,6 @@ export default class PenerateLayer {
     render(_gl, Xmatrix) {
         const gl = this.gl
 
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.maskFbo)
         gl.clearColor(0, 0, 0, 0)
         gl.clear(gl.COLOR_BUFFER_BIT)

@@ -88,15 +88,29 @@ export default class TubeLayerGroup {
 
         // gen a fbo
         this.layerTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE)
-        this.depthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.DEPTH_COMPONENT24, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT)
-        this.layerFbo = GLib.createFrameBuffer(gl, [this.layerTexture], this.depthTexture, null)
+        // this.depthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.DEPTH_COMPONENT24, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT)
+        // this.depthRenderBuffer = GLib.createRenderBufferD24S8(gl, gl.canvas.width, gl.canvas.height)
+        // this.depthRenderBuffer = GLib.createRenderBuffer(gl, gl.canvas.width, gl.canvas.height)
+        // this.layerFbo = GLib.createFrameBuffer(gl, [this.layerTexture], null, null)
+        this.customDepthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.R32F, gl.RED, gl.FLOAT)
+
+        this.depthBuffer = gl.createRenderbuffer()
+        gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer)
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, gl.canvas.width, gl.canvas.height)
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+
+        this.layerFbo = gl.createFramebuffer()
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerFbo)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.layerTexture, 0)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.customDepthTexture, 0)
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer)
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE)
 
         this.showProgram = GLib.createShaderFromCode(gl, showCode)
         this.textureLocation = gl.getUniformLocation(this.showProgram, "debugTexture")
         this.maskLocation = gl.getUniformLocation(this.showProgram, "maskTexture")
-
-        // const bitmap = await GLib.loadImage("/images/concrete.jpg")
-        // this.ttex = GLib.createTexture2D(gl, bitmap.width, bitmap.height, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmap)
 
         // if add subLayer after onAdd
         for (let i = 0; i < this.subLayers.length; i++) {
@@ -115,43 +129,55 @@ export default class TubeLayerGroup {
         this.matrix = calcMatrix(this.map.transform.clone(), this.origin).elements
 
         //////////////TICK LOGIC
-        if (!this.maskTexture) return
+        // if (!this.maskTexture) return
 
         //////////////RENDER
+        // Pass [0] : Clear the color-attachment and depth-buffer
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerFbo)
-        // gl.depthMask(true)
-        // gl.enable(gl.DEPTH_TEST)
-        // gl.depthFunc(gl.LEQUAL)
-        // gl.clearDepth(1.0)
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+
+        gl.enable(gl.DEPTH_TEST)
+        gl.depthMask(true)
+        gl.clearDepth(1.0)
+        gl.clear(gl.DEPTH_BUFFER_BIT)
+
+        gl.clearColor(0.0, 0.0, 0.0, 0.0)
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0 | gl.COLOR_ATTACHMENT1])
+        gl.clear(gl.COLOR_BUFFER_BIT)
+
+        gl.clearColor(0.3, 1.0, 1.0, 0.5)
+        gl.drawBuffers([gl.COLOR_ATTACHMENT1])
+        gl.clear(gl.COLOR_BUFFER_BIT)
+
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1])
+
+        // gl.disable(gl.DEPTH_TEST)
         // gl.clearColor(0.0, 0.0, 0.0, 0.0)
         // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-        gl.disable(gl.DEPTH_TEST)
-        gl.clearColor(0.0, 0.0, 0.0, 0.0)
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
+        // Pass [n]: Clear the color-attachment and depth-buffer
         this.subLayers.forEach(subLayer => {
             if (subLayer.initialized) {
                 subLayer.render(this.gl, this.matrix)
             }
         })
 
-        gl.flush()
-
+        // Pass [ending]: Clear the color-attachment and depth-buffer
         gl.useProgram(this.showProgram)
         gl.activeTexture(gl.TEXTURE0)
-        gl.bindTexture(gl.TEXTURE_2D, this.layerTexture)
+        // gl.bindTexture(gl.TEXTURE_2D, this.layerTexture)
+        gl.bindTexture(gl.TEXTURE_2D, this.customDepthTexture)
         // gl.bindTexture(gl.TEXTURE_2D, this.depthTexture)
         gl.uniform1i(this.textureLocation, 0)
 
-        gl.activeTexture(gl.TEXTURE1)
-        gl.bindTexture(gl.TEXTURE_2D, this.maskTexture)
-        gl.uniform1i(this.maskLocation, 1)
-
+        // gl.activeTexture(gl.TEXTURE1)
+        // gl.bindTexture(gl.TEXTURE_2D, this.maskTexture)
+        // gl.uniform1i(this.maskLocation, 1)
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
-        this.map.triggerRepaint()
+        // this.map.triggerRepaint()
 
     }
 
