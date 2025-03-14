@@ -85,7 +85,7 @@ export function calcMatrix(mapbox_transform, modelOriginInMyWorld) {
     const xModel = new THREE.Matrix4().makeTranslation(modelOriginInMyWorld[0], modelOriginInMyWorld[1], 0.0)
     const xView = xCamera.view
     const xProjection = makePerspectiveMatrix(xCamera.fov, xCamera.aspect, xCamera.nearZ, xCamera.farZ)
-    const xMVP = xProjection.multiply(xView).multiply(xModel).multiply(flip)
+    const xMVP = xProjection.multiply(xView).multiply(xModel)
 
     return xMVP
 }

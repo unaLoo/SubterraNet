@@ -88,25 +88,26 @@ export default class TubeLayerGroup {
 
         // gen a fbo
         this.layerTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE)
-        // this.depthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.DEPTH_COMPONENT24, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT)
+        // this.depthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.DEPTH_COMPONENT32F, gl.DEPTH_COMPONENT, gl.FLOAT)
         // this.depthRenderBuffer = GLib.createRenderBufferD24S8(gl, gl.canvas.width, gl.canvas.height)
-        // this.depthRenderBuffer = GLib.createRenderBuffer(gl, gl.canvas.width, gl.canvas.height)
-        // this.layerFbo = GLib.createFrameBuffer(gl, [this.layerTexture], null, null)
-        this.customDepthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.R32F, gl.RED, gl.FLOAT)
+        this.depthRenderBuffer = GLib.createRenderBuffer(gl, gl.canvas.width, gl.canvas.height)
+        this.layerFbo = GLib.createFrameBuffer(gl, [this.layerTexture], null, this.depthRenderBuffer)
+        // this.customDepthTexture = GLib.createTexture2D(gl, gl.canvas.width, gl.canvas.height, gl.R32F, gl.RED, gl.FLOAT)
 
-        this.depthBuffer = gl.createRenderbuffer()
-        gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer)
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, gl.canvas.width, gl.canvas.height)
-        gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+        // this.depthBuffer = gl.createRenderbuffer()
+        // gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer)
+        // gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, gl.canvas.width, gl.canvas.height)
+        // gl.bindRenderbuffer(gl.RENDERBUFFER, null)
 
-        this.layerFbo = gl.createFramebuffer()
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerFbo)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.layerTexture, 0)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.customDepthTexture, 0)
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer)
+        // this.layerFbo = gl.createFramebuffer()
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerFbo)
+        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.layerTexture, 0)
+        // // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.customDepthTexture, 0)
+        // // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer)
+        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depthTexture, 0)
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-        console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE)
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        // console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE)
 
         this.showProgram = GLib.createShaderFromCode(gl, showCode)
         this.textureLocation = gl.getUniformLocation(this.showProgram, "debugTexture")
@@ -132,24 +133,20 @@ export default class TubeLayerGroup {
         // if (!this.maskTexture) return
 
         //////////////RENDER
-        // Pass [0] : Clear the color-attachment and depth-buffer
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerFbo)
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+        // // Pass [0] : Clear the color-attachment and depth-buffer
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerFbo)
+        // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
 
-        gl.enable(gl.DEPTH_TEST)
-        gl.depthMask(true)
-        gl.clearDepth(1.0)
-        gl.clear(gl.DEPTH_BUFFER_BIT)
+        // gl.depthMask(true)
+        // gl.clearDepth(1.0)
+        // gl.clearColor(0.0, 0.0, 0.0, 0.0)
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-        gl.clearColor(0.0, 0.0, 0.0, 0.0)
-        gl.drawBuffers([gl.COLOR_ATTACHMENT0 | gl.COLOR_ATTACHMENT1])
-        gl.clear(gl.COLOR_BUFFER_BIT)
+        // gl.clearColor(0.3, 1.0, 1.0, 0.5)
+        // gl.drawBuffers([gl.COLOR_ATTACHMENT1])
+        // gl.clear(gl.COLOR_BUFFER_BIT)
 
-        gl.clearColor(0.3, 1.0, 1.0, 0.5)
-        gl.drawBuffers([gl.COLOR_ATTACHMENT1])
-        gl.clear(gl.COLOR_BUFFER_BIT)
-
-        gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1])
+        // gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1])
 
         // gl.disable(gl.DEPTH_TEST)
         // gl.clearColor(0.0, 0.0, 0.0, 0.0)
@@ -167,9 +164,10 @@ export default class TubeLayerGroup {
         // Pass [ending]: Clear the color-attachment and depth-buffer
         gl.useProgram(this.showProgram)
         gl.activeTexture(gl.TEXTURE0)
-        // gl.bindTexture(gl.TEXTURE_2D, this.layerTexture)
-        gl.bindTexture(gl.TEXTURE_2D, this.customDepthTexture)
+        gl.bindTexture(gl.TEXTURE_2D, this.layerTexture)
+        // gl.bindTexture(gl.TEXTURE_2D, this.customDepthTexture)
         // gl.bindTexture(gl.TEXTURE_2D, this.depthTexture)
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.NONE);
         gl.uniform1i(this.textureLocation, 0)
 
         // gl.activeTexture(gl.TEXTURE1)

@@ -30,10 +30,12 @@ void main() {
     vec4 transformedPos = mix(u_modelMatrix * a_big_pos, u_modelMatrix * a_pos, pow(clamp(scaleRate + 0.1, 0.0, 1.0), 0.1));
     // transformedPos = u_modelMatrix * a_pos;
 
-    vec4 pos = transformedPos + vec4(a_translate.xy, a_translate.z / 2.0, 0.0);
+    // note  z / 2 ?
+    vec4 pos = transformedPos + vec4(a_translate.x, a_translate.y, a_translate.z, 0.0);
 
     vec4 positionInClip = u_matrix * pos;
     gl_Position = positionInClip;
+    gl_Position = vec4(positionInClip.xy, 0.0, positionInClip.w);
 
     mat3 normalMat = transpose(inverse(mat3(u_modelMatrix)));
 
@@ -54,7 +56,7 @@ in float v_depth;
 in float vz;
 
 layout(location = 0) out vec4 fragColor;
-layout(location = 1) out float depthColor;
+// layout(location = 1) out float depthColor;
 
 const vec3 lightDirection = vec3(0.0, 1.0, 1.0);
 const vec3 lightColor = vec3(0.47);
@@ -72,13 +74,12 @@ void main() {
     vec3 finalColor = mix(baseColor * 0.2, baseColor, segmentDepth);
     fragColor = vec4(diffuse + finalColor, 1.0);
 
-    // depthColor = smoothstep(0.96, 1.0, (vz + 1.0) / 2.0);
-    float d = (vz + 1.0) / 2.0;
-    // d = clamp(0.0, 0.04, d - 0.96);
-    // d = clamp(d - 0.9, 0.0, 0.1);
+    float d = vz * 0.5 + 0.5;
     d = smoothstep(0.95, 1.0, d);
+    d = clamp((d - 0.95) * 5.0, 0.0, 1.0);
 
-    depthColor = (d - 0.95) * 10.0;
+    // fragColor = vec4(vec3(d), 1.0);
+    // gl_FragDepth = -d;
 }
 
 #endif

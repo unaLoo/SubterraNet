@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import * as util from '../../lib/glLib'
 import shaderCode from '../shaders/Catchpit.glsl?raw'
-import { mat4 } from 'gl-matrix';
+import { mat4, vec3, vec4 } from 'gl-matrix';
 import { lnglat2MyWorld } from '../../lib/LargeWorld';
 
 export default class OutfallLayer {
@@ -81,6 +81,11 @@ export default class OutfallLayer {
 
         const points = generatePoints(this.geojson, this.layerGroup.origin)
 
+        // debug
+        this.pointA = [points[5 * 3], points[5 * 3 + 1], points[5 * 3 + 2], 1]
+        this.pointB = [points[10 * 3], points[10 * 3 + 1], points[10 * 3 + 2], 1]
+        this.pointC = [points[33 * 3], points[33 * 3 + 1], points[33 * 3 + 2], 1]
+
         this.posBuffer = util.createVBO(gl, points)
         this.instanceNum = points.length / 3
         this.vertBuffer = util.createVBO(gl, cylinderData.vertices)
@@ -144,12 +149,26 @@ export default class OutfallLayer {
        * @param {number[]} Xmatrix
        */
     render(_gl, Xmatrix) {
+
         if (!this.visible || this.map.transform.zoom < this.minZoom) return
 
         if (!this.initialized) {
             this.map.triggerRepaint()
             return
         }
+
+        // debug
+        console.log("pointA:", this.pointA, "pointB:", this.pointB, "matrix", Xmatrix)
+        const debug = (p, lb) => {
+            let res = vec4.transformMat4(vec4.create(), p, Xmatrix)
+            vec4.scale(res, res, 1 / res[3])
+            console.log("lb: ", [res[0], res[1], res[2]])
+        }
+        debug(this.pointA, "a")
+        debug(this.pointB, "b")
+        debug(this.pointC, "c")
+
+
 
         const gl = this.gl
         const map = this.map
@@ -183,11 +202,19 @@ export default class OutfallLayer {
         }
 
         //////////////RENDER
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerGroup.layerFbo)
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.layerGroup.depthBuffer)
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerGroup.layerFbo)
+
+        // Pass [0] : Clear the color-attachment and depth-buffer
+        // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+        // gl.depthMask(true)
+        // gl.clearDepth(1.0)
+        // gl.clearColor(0.0, 0.0, 0.0, 0.0)
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
         gl.enable(gl.DEPTH_TEST)
-        gl.depthMask(true)
+        gl.depthFunc(gl.LESS)
+        gl.enable(gl.CULL_FACE)
+        gl.cullFace(gl.BACK)
         gl.useProgram(program)
         gl.bindVertexArray(this.pitVao)
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, Xmatrix)
@@ -199,7 +226,7 @@ export default class OutfallLayer {
         gl.drawElementsInstanced(gl.TRIANGLES, this.idxNum, this.idxType, 0, this.instanceNum)
 
         gl.bindVertexArray(null)
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, null)
+        // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, null)
         gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     }
 

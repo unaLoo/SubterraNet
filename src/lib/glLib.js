@@ -111,7 +111,6 @@ export function createFrameBuffer(gl, textures, depthTexture, depthRenderBuffer)
     }
 
     if (depthRenderBuffer) {
-
         // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, renderBuffer)
 
         gl.framebufferRenderbuffer(
@@ -141,7 +140,7 @@ export function createFrameBuffer(gl, textures, depthTexture, depthRenderBuffer)
  * @param { number } type 
  * @param { ArrayBufferTypes | ImageBitmap } [ resource ]
  */
-export function createTexture2D(gl, width, height, internalFormat, format, type, resource, filter = gl.NEAREST, generateMips = false, repeat = false) {
+export function createTexture2D(gl, width, height, internalFormat, format, type, resource, filter = gl.LINEAR, generateMips = false, repeat = false) {
 
     const texture = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, texture)
