@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@mapbox/mapbox-gl-draw": "^1.5.0",
+    "axios": "^1.8.3",
     "dat.gui": "^0.7.9",
     "deck.gl": "^8.9.36",
     "earcut": "^2.2.4",
