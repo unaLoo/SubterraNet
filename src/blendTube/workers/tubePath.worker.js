@@ -39,7 +39,7 @@ self.onmessage = function (e) {
         // const linkCurrVelocityArrayBuffer = new Float32Array(MAX_VERTEX_NUM * 1)
         // const linkNextVelocityArrayBuffer = new Float32Array(MAX_VERTEX_NUM * 1)
         const velocityArrayBuffers = []
-        for (let i = 0; i < 24; i++) {
+        for (let i = 0; i < 24; i++) { // Change Here!
             velocityArrayBuffers.push(new Float32Array(MAX_VERTEX_NUM * 1))
         }
 
@@ -55,10 +55,11 @@ self.onmessage = function (e) {
 
             // MultiLineString ::: pathes == array of path
             const pathes = feature.geometry.coordinates
-            const pipelineLength = feature.properties["ShapeLengt"]
+            const pipelineLength = feature.properties["Length"]
             const velocities = []
-            for (let i = 1; i <= 24; i++) {
-                velocities.push(feature.properties["link_data_V_" + i * 5])
+            for (let i = 1; i <= 24; i++) { // Change Here!
+                let ct = 5 + (i - 1) * 25
+                velocities.push(feature.properties["V_" + ct])
             }
             for (let path of pathes) {
                 const { vertices, normals, uvs, indices } = generateTube(path, refPos, radius * 200, H)
@@ -69,7 +70,7 @@ self.onmessage = function (e) {
                 uvArrayBuffer.set(uvs, vertexCount * 2)
                 indexArrayBuffer.set(indices.map(i => i + vertexCount), vertexCount)
                 lengthArrayBuffer.fill(pipelineLength, vertexCount, vertexCount + indices.length)
-                for (let i = 0; i < 24; i++) {
+                for (let i = 0; i < 24; i++) { // Change Here!
                     velocityArrayBuffers[i].fill(velocities[i], vertexCount, vertexCount + indices.length)
                 }
                 vertexCount += indices.length

@@ -43,7 +43,7 @@ export default class ConduitLayer {
         }
 
         // data
-        this.numTimes = 24
+        this.numTimes = 24 // Change Here!
         this.currTimeIdx = 0
         this.nextTimeIdx = 1
     }
@@ -192,7 +192,9 @@ export default class ConduitLayer {
         // gl.enable(gl.DEPTH_TEST)
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.layerGroup.layerFbo)
-
+        gl.enable(gl.CULL_FACE)
+        gl.cullFace(gl.BACK)
+        gl.enable(gl.DEPTH_TEST)
         gl.useProgram(program)
         gl.bindVertexArray(this.tubeVao)
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, XMatrix)

@@ -11,15 +11,15 @@ import JunctionLayer from "./subLayers/JunctionLayer";
 import PenerateLayer from "./subLayers/PenetrateLayer";
 
 /////// data
-import conduitJson from "../assets/0312/conduit.json";
+import conduitJson from "../assets/0320/conduit.json";
 import outfallJson from "../assets/0110/outfall.json";
-import junctionJson from "../assets/0312/junction.json";
+import junctionJson from "../assets/0320/junction.json";
 
 export const start = () => {
     let map = new mapboxgl.Map({
         container: "map",
         style: 'mapbox://styles/mapbox/dark-v11',
-        center: [114.050488236074003, 22.458682681330203],
+        center: [114.11766506101121, 22.515288458518754],
         zoom: 17,
         projection: "mercator",
     });

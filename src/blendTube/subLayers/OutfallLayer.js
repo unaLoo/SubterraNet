@@ -32,7 +32,7 @@ export default class OutfallLayer {
         this.deltaTime = 100
 
         // data
-        this.numTimes = 24
+        this.numTimes = 24 // Change Here!
         this.currTimeIdx = 0
         this.nextTimeIdx = 1
     }
@@ -65,19 +65,20 @@ export default class OutfallLayer {
         const pointNum = this.geojson.features.length
         let vertexCount = 0
         const waterHeightArrayBuffers = this.waterHeightArrayBuffers = []
+        const groundHeightArrayBuffer = new Float32Array(pointNum * 1)
 
         for (let i = 0; i < this.numTimes; i++) {
             waterHeightArrayBuffers.push(new Float32Array(pointNum * 1))
         }
         for (let feature of this.geojson.features) {
             for (let i = 1; i <= this.numTimes; i++) {
-                const currWH = Number(feature.properties["node_data_WH_" + i * 5])
-            
+                let ct = 5 + (i - 1) * 25
+                const currWH = Number(feature.properties["WH_" + ct])
                 waterHeightArrayBuffers[i - 1].fill(currWH, vertexCount, vertexCount + 1) // currWH
             }
+            groundHeightArrayBuffer.fill(Number(feature.properties["InvertEleva"]), vertexCount, vertexCount + 1) // bottomHeight
             vertexCount += 1
         }
-        console.log(waterHeightArrayBuffers)
 
         const points = generatePoints(this.geojson, this.layerGroup.origin)
 
@@ -88,14 +89,13 @@ export default class OutfallLayer {
         this.normBuffer = util.createVBO(gl, cylinderData.normals)
         this.uvBuffer = util.createVBO(gl, cylinderData.uvs)
         this.idxBuffer = util.createIBO(gl, cylinderData.indices)
+        this.ghBuffer = util.createVBO(gl, groundHeightArrayBuffer)
         this.whBuffers = []
         for (let i = 0; i < this.numTimes; i++) {
             this.whBuffers.push(util.createVBO(gl, waterHeightArrayBuffers[i]))
         }
         this.idxNum = cylinderData.indices.length
         this.idxType = gl.UNSIGNED_SHORT
-
-
 
         ////////////// vao 
         const pitVao = this.pitVao = gl.createVertexArray()
@@ -122,15 +122,20 @@ export default class OutfallLayer {
         gl.enableVertexAttribArray(4)
         gl.vertexAttribPointer(4, 3, gl.FLOAT, false, 3 * 4, 0)
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.whBuffers[this.currTimeIdx])
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.ghBuffer)
         gl.enableVertexAttribArray(5)
         gl.vertexAttribPointer(5, 1, gl.FLOAT, false, 1 * 4, 0)
         gl.vertexAttribDivisor(5, 1)
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.whBuffers[this.nextTimeIdx])
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.whBuffers[this.currTimeIdx])
         gl.enableVertexAttribArray(6)
         gl.vertexAttribPointer(6, 1, gl.FLOAT, false, 1 * 4, 0)
         gl.vertexAttribDivisor(6, 1)
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.whBuffers[this.nextTimeIdx])
+        gl.enableVertexAttribArray(7)
+        gl.vertexAttribPointer(7, 1, gl.FLOAT, false, 1 * 4, 0)
+        gl.vertexAttribDivisor(7, 1)
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.idxBuffer)
         gl.bindVertexArray(null)
@@ -170,14 +175,14 @@ export default class OutfallLayer {
             gl.bindVertexArray(this.pitVao)
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.whBuffers[this.currTimeIdx])
-            gl.enableVertexAttribArray(5)
-            gl.vertexAttribPointer(5, 1, gl.FLOAT, false, 1 * 4, 0)
-            gl.vertexAttribDivisor(5, 1)
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.whBuffers[this.nextTimeIdx])
             gl.enableVertexAttribArray(6)
             gl.vertexAttribPointer(6, 1, gl.FLOAT, false, 1 * 4, 0)
             gl.vertexAttribDivisor(6, 1)
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.whBuffers[this.nextTimeIdx])
+            gl.enableVertexAttribArray(7)
+            gl.vertexAttribPointer(7, 1, gl.FLOAT, false, 1 * 4, 0)
+            gl.vertexAttribDivisor(7, 1)
 
             gl.bindVertexArray(null)
         }
@@ -192,7 +197,7 @@ export default class OutfallLayer {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_modelMatrix'), false, u_modelMatrix)
         gl.uniform1f(gl.getUniformLocation(program, 'scaleRate'), scaleRate)
         gl.uniform1f(gl.getUniformLocation(program, 'timeStep'), this.currTime / this.deltaTime * 1.0)
-        gl.uniform1f(gl.getUniformLocation(program, 'u_max_depth'), 5.0)
+        gl.uniform1f(gl.getUniformLocation(program, 'u_max_depth'), 10.0)
 
         // gl.drawElements(gl.TRIANGLES, this.tubeIdxNum, this.tubeIdxType, 0)
         gl.drawElementsInstanced(gl.TRIANGLES, this.idxNum, this.idxType, 0, this.instanceNum)

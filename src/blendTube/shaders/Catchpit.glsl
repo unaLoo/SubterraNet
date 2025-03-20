@@ -11,8 +11,9 @@ layout(location = 1) in vec3 a_normal;
 layout(location = 2) in vec2 a_uv;
 layout(location = 3) in vec3 a_translate;
 layout(location = 4) in vec4 a_big_pos;
-layout(location = 5) in float a_curr_wh;
-layout(location = 6) in float a_next_wh;
+layout(location = 5) in float a_ground_height;
+layout(location = 6) in float a_curr_wh;
+layout(location = 7) in float a_next_wh;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_matrix;
@@ -38,7 +39,7 @@ void main() {
 
     v_normal = normalMat * a_normal;
     v_uv = a_uv;
-    v_depth = mix(a_curr_wh, a_next_wh, fract(timeStep));
+    v_depth = mix(a_curr_wh - a_ground_height, a_next_wh - a_ground_height, fract(timeStep));
 }
 
 #endif
@@ -66,7 +67,7 @@ void main() {
 
     float depth = abs(v_normal.z) > 0.99 ? v_normal.z * 0.5 + 0.5 : v_uv.y;
 
-    float segmentDepth = step(depth, v_depth / u_max_depth);
+    float segmentDepth = step(depth, clamp(v_depth / u_max_depth, 0.0, 1.0));
     vec3 finalColor = mix(baseColor * 0.2, baseColor, segmentDepth);
     fragColor = vec4(diffuse + finalColor, 1.0);
 }
