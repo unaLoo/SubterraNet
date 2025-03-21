@@ -75,10 +75,13 @@ void main() {
     // fragColor = vec4(baseColor + diffuse, 1.0);
     float velocity = mix(v_curr_velocity, v_next_velocity, fract(u_time));
     float currentLength = v_length * v_uv.x;
-    float segmentValue = step(fract(currentLength / u_density - u_time * u_flow_speed * v_curr_velocity), u_threshold);
+    float currSegmentValue = step(fract(currentLength / u_density - u_time * u_flow_speed * v_curr_velocity), u_threshold);
+    float nextSegmentValue = step(fract(currentLength / u_density - u_time * u_flow_speed * v_next_velocity), u_threshold);
     vec2 rampUV = vec2(clamp(abs(velocity) / u_max_velocity, 0.0, 1.0), 0.5);
     vec3 rampColor = texture(u_ramp_texture, rampUV).rgb;
-    vec3 finalColor = mix(rampColor * u_color_darkness, rampColor, segmentValue);
+    vec3 currFinalColor = mix(rampColor * u_color_darkness, rampColor, currSegmentValue);
+    vec3 nextFinalColor = mix(rampColor * u_color_darkness, rampColor, nextSegmentValue);
+    vec3 finalColor = mix(currFinalColor, nextFinalColor, smoothstep(0.7, 1.0, fract(u_time)));
     fragColor = vec4(finalColor + diffuse, 1.0);
 }
 
